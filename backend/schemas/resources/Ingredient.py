@@ -1,33 +1,5 @@
 from pydantic import BaseModel
 
-# --- Ingredient Schemas ---
-class IngredientCreate(BaseModel):
-    name: str
-    unit_id: int
-    quantity: float
-    threshold: float
-
-class IngredientUpdate(BaseModel):
-    name: str | None = None
-    unit_id: int | None = None
-    quantity: float | None = None
-    threshold: float | None = None
-
-class IngredientFilter(IngredientUpdate):
-    pass
-
-class IngredientRead(BaseModel):
-    id: int
-    name: str
-    unit_id: int
-    quantity: float
-    threshold: float
-
-    model_config = {
-        "from_attributes": True
-    }
-
-
 # --- Ingredient Unit Schemas ---
 class IngredientUnitCreate(BaseModel):
     name: str
@@ -47,30 +19,45 @@ class IngredientUnitRead(BaseModel):
     }
 
 
-# --- Ingredient History Schemas ---
-class IngredientHistoryCreate(BaseModel):
-    ingredient_id: int
-    change: float
-    reason: str | None = None
-    created_at: str | None = None
+# --- Ingredient Schemas ---
+class IngredientCreate(BaseModel):
+    name: str
+    unit_id: int
+    quantity: float
+    threshold: float
 
+class IngredientUpdate(BaseModel):
+    name: str | None = None
+    unit_id: int | None = None
+    quantity: float | None = None
+    threshold: float | None = None
 
-class IngredientHistoryRead(BaseModel):
+class IngredientFilter(IngredientUpdate):
+    pass
+
+class IngredientReadBase(BaseModel):
     id: int
-    ingredient_id: int
-    change: float
-    reason: str | None = None
-    created_at: str
+    name: str
+    unit_id: int
+    quantity: float
+    threshold: float
 
     model_config = {
         "from_attributes": True
     }
 
-class IngredientHistoryUpdate(BaseModel):
-    ingredient_id: int | None = None
-    change: float | None = None
-    reason: str | None = None
-    created_at: str | None = None
+class IngredientReadExtended(IngredientReadBase):
+    unit: IngredientUnitRead
 
-class IngredientHistoryFilter(IngredientHistoryUpdate):
-    pass
+
+
+
+# --- Ingredient History Schemas ---
+class IngredientHistoryRead(BaseModel):
+    ingredient_id: int
+    old_quantity: float 
+    new_quantity: float 
+    quantity_change: float 
+    reason: str | None = None
+    created_at: str 
+

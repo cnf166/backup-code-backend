@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@ta
 import {
   tablesApi,
   dishesApi,
+  tagsApi,
   ordersApi,
   orderItemsApi,
   orderStatusesApi,
@@ -19,6 +20,8 @@ import type {
   OrderFilter,
   OrderItemFilter,
   DishFilter,
+  OrderRead,
+  OrderItemRead,
 } from '../types';
 
 // ============================================
@@ -70,6 +73,30 @@ export const useDish = (id: number) => {
 };
 
 // ============================================
+// Tags Hooks
+// ============================================
+export const useTags = () => {
+  return useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
+      const response = await tagsApi.getAll();
+      return response.data;
+    },
+  });
+};
+
+export const useTag = (id: number) => {
+  return useQuery({
+    queryKey: ['tags', id],
+    queryFn: async () => {
+      const response = await tagsApi.getById(id);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+};
+
+// ============================================
 // Orders Hooks
 // ============================================
 export const useOrders = (
@@ -114,6 +141,7 @@ export const useCreateOrder = () => {
     mutationFn: (data: OrderCreate) => ordersApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['tables'] });
     },
   });
 };
@@ -126,6 +154,7 @@ export const useUpdateOrder = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['orders', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['tables'] });
     },
   });
 };
@@ -136,6 +165,17 @@ export const useDeleteOrder = () => {
     mutationFn: (id: number) => ordersApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+};
+
+export const useCompleteOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => ordersApi.complete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['tables'] });
     },
   });
 };
